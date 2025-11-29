@@ -1,55 +1,176 @@
 <?php
-// Đọc file CSV
-$filename = '65HTTT_Danh_sach_diem_danh.csv';
-$students = [];
-$headers = [];
+// Kết nối Database
+require_once 'config.php';
 
-if (file_exists($filename)) {
-    $file = fopen($filename, 'r');
-    
-    // Đọc dòng header
-    if (($header = fgetcsv($file)) !== false) {
-        $headers = $header;
-    }
-    
-    // Đọc các dòng dữ liệu
-    while (($row = fgetcsv($file)) !== false) {
-        if (count($row) == count($headers)) {
-            $students[] = array_combine($headers, $row);
-        }
-    }
-    
-    fclose($file);
-}
+$message = '';
+$messageType = '';
 
-$totalStudents = count($students);
-
-// Tìm kiếm
-$searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
-$filteredStudents = $students;
-
-if (!empty($searchTerm)) {
-    $filteredStudents = array_filter($students, function($student) use ($searchTerm) {
-        foreach ($student as $value) {
-            if (stripos($value, $searchTerm) !== false) {
-                return true;
+// Xử lý upload và import CSV
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
+    if ($_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
+        $tmpName = $_FILES['csv_file']['tmp_name'];
+        $fileName = $_FILES['csv_file']['name'];
+        
+        // Kiểm tra file CSV
+        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        if ($fileExt === 'csv') {
+            $file = fopen($tmpName, 'r');
+            $headers = fgetcsv($file);
+            
+            $totalRows = 0;
+            $importedRows = 0;
+            $skippedRows = 0;
+            
+            // Chuẩn bị câu lệnh INSERT với ON DUPLICATE KEY UPDATE
+            $stmt = $pdo->prepare("INSERT INTO students (username, password, lastname, firstname, city, email, course1) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?)
+                                   ON DUPLICATE KEY UPDATE 
+                                   password = VALUES(password),
+                                   lastname = VALUES(lastname),
+                                   firstname = VALUES(firstname),
+                                   city = VALUES(city),
+                                   email = VALUES(email),
+                                   course1 = VALUES(course1)");
+            
+            while (($row = fgetcsv($file)) !== false) {
+                $totalRows++;
+                if (count($row) == count($headers)) {
+                    $data = array_combine($headers, $row);
+                    try {
+                        $stmt->execute([
+                            $data['username'],
+                            $data['password'],
+                            $data['lastname'],
+                            $data['firstname'],
+                            $data['city'],
+                            $data['email'],
+                            $data['course1']
+                        ]);
+                        $importedRows++;
+                    } catch (PDOException $e) {
+                        $skippedRows++;
+                    }
+                } else {
+                    $skippedRows++;
+                }
             }
+            
+            fclose($file);
+            
+            // Lưu lịch sử import
+            $historyStmt = $pdo->prepare("INSERT INTO import_history (filename, total_rows, imported_rows, skipped_rows) VALUES (?, ?, ?, ?)");
+            $historyStmt->execute([$fileName, $totalRows, $importedRows, $skippedRows]);
+            
+            $message = "Đã import thành công! Tổng: $totalRows dòng | Thành công: $importedRows | Bỏ qua: $skippedRows";
+            $messageType = "success";
+        } else {
+            $message = "Vui lòng chọn file CSV!";
+            $messageType = "error";
         }
-        return false;
-    });
+    } else {
+        $message = "Lỗi khi upload file!";
+        $messageType = "error";
+    }
 }
 
-// Lọc theo lớp
-$classFilter = isset($_GET['class']) ? $_GET['class'] : '';
-if (!empty($classFilter)) {
-    $filteredStudents = array_filter($filteredStudents, function($student) use ($classFilter) {
-        return $student['city'] === $classFilter;
-    });
+// Xử lý xóa sinh viên
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    try {
+        $stmt = $pdo->prepare("DELETE FROM students WHERE id = ?");
+        $stmt->execute([$id]);
+        $message = "Đã xóa sinh viên thành công!";
+        $messageType = "success";
+    } catch (PDOException $e) {
+        $message = "Lỗi khi xóa: " . $e->getMessage();
+        $messageType = "error";
+    }
 }
 
-// Lấy danh sách các lớp để filter
-$classes = array_unique(array_column($students, 'city'));
-sort($classes);
+// Xử lý thêm/sửa sinh viên
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $username = trim($_POST['username'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $lastname = trim($_POST['lastname'] ?? '');
+    $firstname = trim($_POST['firstname'] ?? '');
+    $city = trim($_POST['city'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $course1 = trim($_POST['course1'] ?? '');
+    $editId = intval($_POST['edit_id'] ?? 0);
+    
+    if (!empty($username) && !empty($password) && !empty($lastname) && !empty($firstname)) {
+        try {
+            if ($editId > 0) {
+                $stmt = $pdo->prepare("UPDATE students SET username=?, password=?, lastname=?, firstname=?, city=?, email=?, course1=? WHERE id=?");
+                $stmt->execute([$username, $password, $lastname, $firstname, $city, $email, $course1, $editId]);
+                $message = "Đã cập nhật sinh viên thành công!";
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO students (username, password, lastname, firstname, city, email, course1) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$username, $password, $lastname, $firstname, $city, $email, $course1]);
+                $message = "Đã thêm sinh viên mới thành công!";
+            }
+            $messageType = "success";
+        } catch (PDOException $e) {
+            $message = "Lỗi: " . $e->getMessage();
+            $messageType = "error";
+        }
+    } else {
+        $message = "Vui lòng điền đầy đủ thông tin bắt buộc!";
+        $messageType = "error";
+    }
+}
+
+// Lấy thông tin sinh viên cần sửa
+$editStudent = null;
+if (isset($_GET['edit'])) {
+    $editId = intval($_GET['edit']);
+    $stmt = $pdo->prepare("SELECT * FROM students WHERE id = ?");
+    $stmt->execute([$editId]);
+    $editStudent = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Lấy danh sách sinh viên từ database
+try {
+    // Tìm kiếm
+    $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $classFilter = isset($_GET['class']) ? $_GET['class'] : '';
+    
+    $sql = "SELECT * FROM students WHERE 1=1";
+    $params = [];
+    
+    if (!empty($searchTerm)) {
+        $sql .= " AND (username LIKE ? OR lastname LIKE ? OR firstname LIKE ? OR email LIKE ?)";
+        $searchParam = "%$searchTerm%";
+        $params = array_merge($params, [$searchParam, $searchParam, $searchParam, $searchParam]);
+    }
+    
+    if (!empty($classFilter)) {
+        $sql .= " AND city = ?";
+        $params[] = $classFilter;
+    }
+    
+    $sql .= " ORDER BY id DESC";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Lấy tổng số sinh viên
+    $totalStmt = $pdo->query("SELECT COUNT(*) FROM students");
+    $totalStudents = $totalStmt->fetchColumn();
+    
+    // Lấy danh sách lớp
+    $classStmt = $pdo->query("SELECT DISTINCT city FROM students ORDER BY city");
+    $classes = $classStmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    $dbConnected = true;
+} catch (PDOException $e) {
+    $students = [];
+    $totalStudents = 0;
+    $classes = [];
+    $dbConnected = false;
+    $errorMessage = $e->getMessage();
+}
 ?>
 
 <!DOCTYPE html>
@@ -57,7 +178,7 @@ sort($classes);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh Sách Tài Khoản Sinh Viên</title>
+    <title>Danh Sách Tài Khoản Sinh Viên - Database</title>
     <style>
         * {
             margin: 0;
@@ -101,6 +222,45 @@ sort($classes);
             font-size: 1.1em;
         }
         
+        .db-status {
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .db-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .db-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
         .stats-bar {
             display: flex;
             justify-content: center;
@@ -122,6 +282,126 @@ sort($classes);
         
         .stat-item.highlight {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        /* Upload Section */
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .upload-section h3 {
+            color: #2c5364;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .upload-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-form input[type="file"] {
+            padding: 12px;
+            border: 2px dashed #2c5364;
+            border-radius: 10px;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .upload-form button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        /* Student Form */
+        .student-form {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .student-form h3 {
+            color: #2c5364;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 10px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .form-group input:focus {
+            border-color: #2c5364;
+            outline: none;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #2c5364 0%, #203a43 100%);
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
         }
         
         /* Filter Section */
@@ -171,19 +451,10 @@ sort($classes);
             outline: none;
         }
         
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
         .btn-search {
             background: linear-gradient(135deg, #2c5364 0%, #203a43 100%);
             color: white;
+            padding: 12px 25px;
         }
         
         .btn-search:hover {
@@ -194,6 +465,7 @@ sort($classes);
         .btn-reset {
             background: #e74c3c;
             color: white;
+            padding: 12px 25px;
         }
         
         .btn-reset:hover {
@@ -350,21 +622,16 @@ sort($classes);
             cursor: pointer;
             font-size: 0.8em;
             transition: all 0.3s ease;
-        }
-        
-        .btn-view {
-            background: #3498db;
+            text-decoration: none;
             color: white;
         }
         
         .btn-edit {
             background: #f39c12;
-            color: white;
         }
         
         .btn-delete {
             background: #e74c3c;
-            color: white;
         }
         
         .btn-action:hover {
@@ -420,6 +687,10 @@ sort($classes);
                 flex-direction: column;
                 align-items: center;
             }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         /* Scroll to top button */
@@ -443,24 +714,18 @@ sort($classes);
         .scroll-top:hover {
             transform: translateY(-5px);
         }
-        
-        /* Highlight search term */
-        .highlight {
-            background: yellow;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>📋 Danh Sách Tài Khoản <span>Sinh Viên</span></h1>
-            <p>Đọc từ file CSV - Tiền đề cho hoạt động lưu vào CSDL</p>
+            <p>Dữ liệu từ MySQL Database - Hỗ trợ Upload CSV</p>
             
+            <?php if ($dbConnected): ?>
             <div class="stats-bar">
                 <div class="stat-item">
-                    📁 File: <?php echo $filename; ?>
+                    🗄️ Database: students_db
                 </div>
                 <div class="stat-item highlight">
                     👥 Tổng: <?php echo $totalStudents; ?> sinh viên
@@ -469,7 +734,85 @@ sort($classes);
                     🏫 <?php echo count($classes); ?> lớp học
                 </div>
             </div>
+            <?php endif; ?>
         </header>
+        
+        <?php if (!$dbConnected): ?>
+        <div class="db-status db-error">
+            ❌ <strong>Lỗi kết nối Database!</strong><br>
+            <?php echo htmlspecialchars($errorMessage ?? 'Không thể kết nối MySQL'); ?><br>
+            <small>Hãy chắc chắn đã chạy file <code>database.sql</code> trong phpMyAdmin</small>
+        </div>
+        <?php else: ?>
+        <div class="db-status db-success">
+            ✅ <strong>Kết nối Database thành công!</strong>
+        </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($message)): ?>
+        <div class="message <?php echo $messageType; ?>">
+            <?php echo htmlspecialchars($message); ?>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Upload CSV Section -->
+        <div class="upload-section">
+            <h3>📤 Upload File CSV để Import vào Database</h3>
+            <form method="POST" enctype="multipart/form-data" class="upload-form">
+                <input type="file" name="csv_file" accept=".csv" required>
+                <button type="submit">📥 Import CSV</button>
+            </form>
+            <p style="text-align: center; margin-top: 10px; color: #666;">
+                <small>File CSV phải có các cột: username, password, lastname, firstname, city, email, course1</small>
+            </p>
+        </div>
+        
+        <!-- Student Form (Add/Edit) -->
+        <div class="student-form">
+            <h3><?php echo $editStudent ? '✏️ Sửa Thông Tin Sinh Viên' : '➕ Thêm Sinh Viên Mới'; ?></h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="save">
+                <input type="hidden" name="edit_id" value="<?php echo $editStudent['id'] ?? 0; ?>">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>MSSV *:</label>
+                        <input type="text" name="username" value="<?php echo htmlspecialchars($editStudent['username'] ?? ''); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mật khẩu *:</label>
+                        <input type="text" name="password" value="<?php echo htmlspecialchars($editStudent['password'] ?? 'cse@485A'); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Họ đệm *:</label>
+                        <input type="text" name="lastname" value="<?php echo htmlspecialchars($editStudent['lastname'] ?? ''); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tên *:</label>
+                        <input type="text" name="firstname" value="<?php echo htmlspecialchars($editStudent['firstname'] ?? ''); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Lớp:</label>
+                        <input type="text" name="city" value="<?php echo htmlspecialchars($editStudent['city'] ?? ''); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" name="email" value="<?php echo htmlspecialchars($editStudent['email'] ?? ''); ?>">
+                    </div>
+                    <div class="form-group">
+                        <label>Mã học phần:</label>
+                        <input type="text" name="course1" value="<?php echo htmlspecialchars($editStudent['course1'] ?? ''); ?>">
+                    </div>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-submit"><?php echo $editStudent ? '💾 Cập Nhật' : '➕ Thêm Mới'; ?></button>
+                    <?php if ($editStudent): ?>
+                    <a href="bai3.php" class="btn btn-cancel">❌ Hủy</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
         
         <!-- Filter Section -->
         <div class="filter-section">
@@ -480,8 +823,8 @@ sort($classes);
                 <select name="class">
                     <option value="">-- Tất cả lớp --</option>
                     <?php foreach ($classes as $class): ?>
-                        <option value="<?php echo $class; ?>" <?php echo $classFilter === $class ? 'selected' : ''; ?>>
-                            <?php echo $class; ?>
+                        <option value="<?php echo htmlspecialchars($class); ?>" <?php echo $classFilter === $class ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($class); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -496,11 +839,11 @@ sort($classes);
             <div class="table-header">
                 <h2>📊 Bảng Dữ Liệu Sinh Viên</h2>
                 <span class="result-count">
-                    Hiển thị: <?php echo count($filteredStudents); ?> / <?php echo $totalStudents; ?> sinh viên
+                    Hiển thị: <?php echo count($students); ?> / <?php echo $totalStudents; ?> sinh viên
                 </span>
             </div>
             
-            <?php if (count($filteredStudents) > 0): ?>
+            <?php if (count($students) > 0): ?>
             <table class="data-table">
                 <thead>
                     <tr>
@@ -518,7 +861,7 @@ sort($classes);
                 <tbody>
                     <?php 
                     $stt = 1;
-                    foreach ($filteredStudents as $student): 
+                    foreach ($students as $student): 
                     ?>
                     <tr>
                         <td><?php echo $stt++; ?></td>
@@ -535,9 +878,8 @@ sort($classes);
                         <td><span class="col-course"><?php echo htmlspecialchars($student['course1']); ?></span></td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-action btn-view" onclick="viewStudent('<?php echo $student['username']; ?>')" title="Xem">👁️</button>
-                                <button class="btn-action btn-edit" onclick="editStudent('<?php echo $student['username']; ?>')" title="Sửa">✏️</button>
-                                <button class="btn-action btn-delete" onclick="deleteStudent('<?php echo $student['username']; ?>')" title="Xóa">🗑️</button>
+                                <a href="bai3.php?edit=<?php echo $student['id']; ?>" class="btn-action btn-edit" title="Sửa">✏️</a>
+                                <a href="bai3.php?delete=<?php echo $student['id']; ?>" class="btn-action btn-delete" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa sinh viên <?php echo htmlspecialchars($student['username']); ?>?')">🗑️</a>
                             </div>
                         </td>
                     </tr>
@@ -554,31 +896,14 @@ sort($classes);
         </div>
         
         <footer>
-            <p>© 2025 - Bài tập PHP: Đọc và Hiển thị File CSV</p>
-            <p>Tiền đề cho hoạt động lưu vào CSDL (MySQL)</p>
+            <p>© 2025 - Bài tập PHP: Quản lý Sinh viên với MySQL Database</p>
+            <p>Hỗ trợ upload file CSV và import vào CSDL</p>
         </footer>
     </div>
     
     <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">⬆️</button>
     
     <script>
-        // View student details
-        function viewStudent(username) {
-            alert('Xem chi tiết sinh viên: ' + username + '\n\n(Tính năng sẽ được phát triển khi kết nối CSDL)');
-        }
-        
-        // Edit student
-        function editStudent(username) {
-            alert('Sửa thông tin sinh viên: ' + username + '\n\n(Tính năng sẽ được phát triển khi kết nối CSDL)');
-        }
-        
-        // Delete student
-        function deleteStudent(username) {
-            if (confirm('Bạn có chắc chắn muốn xóa sinh viên ' + username + '?')) {
-                alert('Xóa sinh viên: ' + username + '\n\n(Tính năng sẽ được phát triển khi kết nối CSDL)');
-            }
-        }
-        
         // Scroll to top functionality
         window.onscroll = function() {
             const scrollTopBtn = document.getElementById('scrollTop');

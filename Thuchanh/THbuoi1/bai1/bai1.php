@@ -1,90 +1,90 @@
 <?php
-$flowers = [
-    [
-        'id' => 1,
-        'name' => 'Dạ Yến Thảo',
-        'description' => 'Hoa dạ yến thảo (Petunia) là loài hoa đẹp với nhiều màu sắc rực rỡ như tím, hồng, trắng, đỏ. Thường được trồng trong chậu treo hoặc bồn hoa, nở rộ vào mùa xuân hè, mang lại vẻ đẹp lãng mạn cho không gian.',
-        'image' => 'images/dayenthao.webp'
-    ],
-    [
-        'id' => 2,
-        'name' => 'Hoa Cẩm Chướng',
-        'description' => 'Hoa cẩm chướng (Carnation) mang ý nghĩa của tình yêu, sự ái mộ và lòng biết ơn. Hoa có nhiều màu sắc phong phú và hương thơm nhẹ nhàng, thích hợp trồng vào mùa xuân.',
-        'image' => 'images/hoacamchuong.webp'
-    ],
-    [
-        'id' => 3,
-        'name' => 'Hoa Đèn Lồng',
-        'description' => 'Hoa đèn lồng (Fuchsia) có hình dáng độc đáo như chiếc đèn lồng nhỏ xinh, với màu sắc kết hợp giữa đỏ, hồng và tím. Thường được trồng làm cảnh trong chậu treo.',
-        'image' => 'images/hoadenlong.webp'
-    ],
-    [
-        'id' => 4,
-        'name' => 'Hoa Đồng Tiền',
-        'description' => 'Hoa đồng tiền (Gerbera) tượng trưng cho sự may mắn, tài lộc và niềm vui. Hoa có nhiều màu sắc tươi sáng như đỏ, vàng, cam, hồng, rất thích hợp để trang trí và làm quà tặng.',
-        'image' => 'images/hoadongtien.webp'
-    ],
-    [
-        'id' => 5,
-        'name' => 'Hoa Giấy',
-        'description' => 'Hoa giấy (Bougainvillea) là loài hoa dễ trồng, có màu sắc rực rỡ như đỏ, hồng, tím, cam. Hoa giấy thường leo giàn và nở hoa quanh năm, đặc biệt đẹp vào mùa hè.',
-        'image' => 'images/hoagiay.webp'
-    ],
-    [
-        'id' => 6,
-        'name' => 'Hoa Cúc',
-        'description' => 'Hoa cúc (Chrysanthemum) là biểu tượng của sự trường thọ và hạnh phúc. Hoa có nhiều loại và màu sắc khác nhau, dễ chăm sóc và nở hoa bền lâu.',
-        'image' => 'images/hoacuc.webp'
-    ],
-    [
-        'id' => 7,
-        'name' => 'Hoa Hồng',
-        'description' => 'Hoa hồng (Rose) được mệnh danh là nữ hoàng của các loài hoa, tượng trưng cho tình yêu và sự lãng mạn. Có rất nhiều giống hoa hồng với đủ màu sắc và hương thơm quyến rũ.',
-        'image' => 'images/hoahong.webp'
-    ],
-    [
-        'id' => 8,
-        'name' => 'Hoa Lan',
-        'description' => 'Hoa lan (Orchid) là loài hoa quý phái, sang trọng, tượng trưng cho sự tinh khiết và cao quý. Lan có nhiều loại như lan hồ điệp, lan dendro, lan mokara rất được ưa chuộng.',
-        'image' => 'images/hoalan.webp'
-    ],
-    [
-        'id' => 9,
-        'name' => 'Hoa Ly',
-        'description' => 'Hoa ly (Lily) có hương thơm nồng nàn và vẻ đẹp kiêu sa. Hoa ly thường được dùng trong các dịp lễ tết, cưới hỏi, mang ý nghĩa của sự thuần khiết và may mắn.',
-        'image' => 'images/hoaly.webp'
-    ],
-    [
-        'id' => 10,
-        'name' => 'Hoa Mười Giờ',
-        'description' => 'Hoa mười giờ (Portulaca) là loài hoa nhỏ xinh, nở rộ vào buổi sáng khi có nắng. Hoa có nhiều màu sắc rực rỡ, dễ trồng và chịu hạn tốt.',
-        'image' => 'images/hoamuoigio.webp'
-    ],
-    [
-        'id' => 11,
-        'name' => 'Hoa Sen',
-        'description' => 'Hoa sen (Lotus) là quốc hoa của Việt Nam, tượng trưng cho sự thanh cao, thuần khiết. Sen nở vào mùa hè với vẻ đẹp thánh thiện và hương thơm dịu nhẹ.',
-        'image' => 'images/hoasen.webp'
-    ],
-    [
-        'id' => 12,
-        'name' => 'Hoa Súng',
-        'description' => 'Hoa súng (Water Lily) là loài hoa thủy sinh đẹp, thường mọc trong ao hồ. Hoa có màu trắng, hồng, tím với những cánh hoa xếp lớp tao nhã.',
-        'image' => 'images/hoasung.webp'
-    ],
-    [
-        'id' => 13,
-        'name' => 'Hoa Tulip',
-        'description' => 'Hoa tulip (Tulip) có nguồn gốc từ Hà Lan, là biểu tượng của mùa xuân. Hoa có hình dáng thanh lịch với nhiều màu sắc tươi đẹp như đỏ, vàng, tím, trắng.',
-        'image' => 'images/hoatulip.webp'
-    ],
-    [
-        'id' => 14,
-        'name' => 'Hoa Thược Dược',
-        'description' => 'Hoa thược dược (Dahlia) có nhiều cánh xếp chồng lên nhau tạo thành bông hoa tròn đầy. Hoa có nhiều màu sắc rực rỡ, thường nở vào mùa hè và thu.',
-        'image' => 'images/hoathuocduoc.webp'
-    ]
-];
+// Kết nối Database
+require_once 'config.php';
+
+// Xử lý các action CRUD
+$message = '';
+$messageType = '';
+
+// Xử lý xóa hoa
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    try {
+        $stmt = $pdo->prepare("DELETE FROM flowers WHERE id = ?");
+        $stmt->execute([$id]);
+        $message = "Đã xóa hoa thành công!";
+        $messageType = "success";
+    } catch (PDOException $e) {
+        $message = "Lỗi khi xóa: " . $e->getMessage();
+        $messageType = "error";
+    }
+}
+
+// Xử lý thêm/sửa hoa
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $image = trim($_POST['image'] ?? '');
+    $editId = intval($_POST['edit_id'] ?? 0);
+    
+    // Xử lý upload hình ảnh
+    if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = 'images/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+        
+        $fileName = time() . '_' . basename($_FILES['image_file']['name']);
+        $targetPath = $uploadDir . $fileName;
+        
+        if (move_uploaded_file($_FILES['image_file']['tmp_name'], $targetPath)) {
+            $image = $targetPath;
+        }
+    }
+    
+    if (!empty($name) && !empty($description) && !empty($image)) {
+        try {
+            if ($editId > 0) {
+                // Cập nhật hoa
+                $stmt = $pdo->prepare("UPDATE flowers SET name = ?, description = ?, image = ? WHERE id = ?");
+                $stmt->execute([$name, $description, $image, $editId]);
+                $message = "Đã cập nhật hoa thành công!";
+            } else {
+                // Thêm hoa mới
+                $stmt = $pdo->prepare("INSERT INTO flowers (name, description, image) VALUES (?, ?, ?)");
+                $stmt->execute([$name, $description, $image]);
+                $message = "Đã thêm hoa mới thành công!";
+            }
+            $messageType = "success";
+        } catch (PDOException $e) {
+            $message = "Lỗi: " . $e->getMessage();
+            $messageType = "error";
+        }
+    } else {
+        $message = "Vui lòng điền đầy đủ thông tin!";
+        $messageType = "error";
+    }
+}
+
+// Lấy thông tin hoa cần sửa
+$editFlower = null;
+if (isset($_GET['edit'])) {
+    $editId = intval($_GET['edit']);
+    $stmt = $pdo->prepare("SELECT * FROM flowers WHERE id = ?");
+    $stmt->execute([$editId]);
+    $editFlower = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Lấy danh sách hoa từ database
+try {
+    $stmt = $pdo->query("SELECT * FROM flowers ORDER BY id");
+    $flowers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $dbConnected = true;
+} catch (PDOException $e) {
+    $flowers = [];
+    $dbConnected = false;
+    $errorMessage = $e->getMessage();
+}
 
 $isAdmin = isset($_GET['admin']) && $_GET['admin'] == '1';
 ?>
@@ -129,6 +129,45 @@ $isAdmin = isset($_GET['admin']) && $_GET['admin'] == '1';
         header p {
             font-size: 1.2em;
             opacity: 0.9;
+        }
+        
+        .db-status {
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .db-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .db-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         .nav-switch {
@@ -289,6 +328,78 @@ $isAdmin = isset($_GET['admin']) && $_GET['admin'] == '1';
             background: #138496;
         }
         
+        /* Form Styles */
+        .flower-form {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .flower-form h3 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: #764ba2;
+            outline: none;
+        }
+        
+        .form-group input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1em;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            text-decoration: none;
+        }
+        
         footer {
             text-align: center;
             padding: 30px;
@@ -314,9 +425,27 @@ $isAdmin = isset($_GET['admin']) && $_GET['admin'] == '1';
 <body>
     <div class="container">
         <header>
-            <h1>🌸 14 Loại Hoa Tuyệt Đẹp 🌸</h1>
-            <p>Thích hợp trồng để khoe hương sắc dịp xuân hè</p>
+            <h1>🌸 Các Loại Hoa Tuyệt Đẹp 🌸</h1>
+            <p>Thích hợp trồng để khoe hương sắc dịp xuân hè | 🗄️ Dữ liệu từ MySQL</p>
         </header>
+        
+        <?php if (!$dbConnected): ?>
+        <div class="db-status db-error">
+            ❌ <strong>Lỗi kết nối Database!</strong><br>
+            <?php echo htmlspecialchars($errorMessage ?? 'Không thể kết nối MySQL'); ?><br>
+            <small>Hãy chắc chắn đã chạy file <code>database.sql</code> trong phpMyAdmin</small>
+        </div>
+        <?php else: ?>
+        <div class="db-status db-success">
+            ✅ <strong>Kết nối Database thành công!</strong> - Đang hiển thị <?php echo count($flowers); ?> loại hoa từ MySQL
+        </div>
+        <?php endif; ?>
+        
+        <?php if (!empty($message)): ?>
+        <div class="message <?php echo $messageType; ?>">
+            <?php echo htmlspecialchars($message); ?>
+        </div>
+        <?php endif; ?>
         
         <nav class="nav-switch">
             <a href="bai1.php" class="<?php echo !$isAdmin ? 'active' : ''; ?>">👤 Trang Khách</a>
@@ -324,10 +453,42 @@ $isAdmin = isset($_GET['admin']) && $_GET['admin'] == '1';
         </nav>
         
         <?php if ($isAdmin): ?>
+            <!-- Form thêm/sửa hoa -->
+            <div class="flower-form">
+                <h3><?php echo $editFlower ? '✏️ Sửa Thông Tin Hoa' : '➕ Thêm Hoa Mới'; ?></h3>
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="edit_id" value="<?php echo $editFlower['id'] ?? 0; ?>">
+                    
+                    <div class="form-group">
+                        <label>Tên hoa:</label>
+                        <input type="text" name="name" value="<?php echo htmlspecialchars($editFlower['name'] ?? ''); ?>" placeholder="Nhập tên hoa..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mô tả:</label>
+                        <textarea name="description" rows="4" placeholder="Nhập mô tả về hoa..." required><?php echo htmlspecialchars($editFlower['description'] ?? ''); ?></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Đường dẫn hình ảnh (hoặc upload file mới):</label>
+                        <input type="text" name="image" value="<?php echo htmlspecialchars($editFlower['image'] ?? ''); ?>" placeholder="images/tenhoa.webp">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hoặc tải lên hình ảnh:</label>
+                        <input type="file" name="image_file" accept="image/*">
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-submit"><?php echo $editFlower ? '💾 Cập Nhật' : '➕ Thêm Mới'; ?></button>
+                        <?php if ($editFlower): ?>
+                        <a href="bai1.php?admin=1" class="btn btn-cancel">❌ Hủy</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+            
             <div class="admin-table">
-                <div style="padding: 20px;">
-                    <button class="btn btn-add" onclick="alert('Chức năng thêm hoa mới!')">➕ Thêm Hoa Mới</button>
-                </div>
                 <table>
                     <thead>
                         <tr>
@@ -343,14 +504,13 @@ $isAdmin = isset($_GET['admin']) && $_GET['admin'] == '1';
                         <tr>
                             <td><strong>#<?php echo $flower['id']; ?></strong></td>
                             <td>
-                                <img src="<?php echo $flower['image']; ?>" alt="<?php echo $flower['name']; ?>">
+                                <img src="<?php echo htmlspecialchars($flower['image']); ?>" alt="<?php echo htmlspecialchars($flower['name']); ?>">
                             </td>
-                            <td><strong><?php echo $flower['name']; ?></strong></td>
-                            <td style="max-width: 400px;"><?php echo substr($flower['description'], 0, 100); ?>...</td>
+                            <td><strong><?php echo htmlspecialchars($flower['name']); ?></strong></td>
+                            <td style="max-width: 400px;"><?php echo htmlspecialchars(substr($flower['description'], 0, 100)); ?>...</td>
                             <td>
-                                <button class="btn btn-view" onclick="alert('Xem chi tiết: <?php echo $flower['name']; ?>')">👁️ Xem</button>
-                                <button class="btn btn-edit" onclick="alert('Sửa: <?php echo $flower['name']; ?>')">✏️ Sửa</button>
-                                <button class="btn btn-delete" onclick="if(confirm('Bạn có chắc muốn xóa <?php echo $flower['name']; ?>?')) alert('Đã xóa!')">🗑️ Xóa</button>
+                                <a href="bai1.php?admin=1&edit=<?php echo $flower['id']; ?>" class="btn btn-edit">✏️ Sửa</a>
+                                <a href="bai1.php?admin=1&delete=<?php echo $flower['id']; ?>" class="btn btn-delete" onclick="return confirm('Bạn có chắc muốn xóa <?php echo htmlspecialchars($flower['name']); ?>?')">🗑️ Xóa</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -361,10 +521,10 @@ $isAdmin = isset($_GET['admin']) && $_GET['admin'] == '1';
             <div class="flower-grid">
                 <?php foreach ($flowers as $flower): ?>
                 <article class="flower-card">
-                    <img src="<?php echo $flower['image']; ?>" alt="<?php echo $flower['name']; ?>">
+                    <img src="<?php echo htmlspecialchars($flower['image']); ?>" alt="<?php echo htmlspecialchars($flower['name']); ?>">
                     <div class="content">
-                        <h2><?php echo $flower['name']; ?></h2>
-                        <p><?php echo $flower['description']; ?></p>
+                        <h2><?php echo htmlspecialchars($flower['name']); ?></h2>
+                        <p><?php echo htmlspecialchars($flower['description']); ?></p>
                     </div>
                 </article>
                 <?php endforeach; ?>
